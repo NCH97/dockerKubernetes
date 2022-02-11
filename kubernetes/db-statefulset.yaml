@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db-statefulset
+  labels:
+    app: flasvue
+    tier: db
+spec:
+  selector:
+    matchLabels:
+      app: flaskvue
+  serviceName: "service-statefulset"
+  replicas: 1
+  template:
+    metadata:
+      name: db-pod
+      labels:
+        app: flaskvue
+        tier: db
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: db-container
+        image: postgres:10
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: postgres-store
+          mountPath: /var/lib/postgres/data
+        env:
+          - name: POSTGRES_USER
+            value: "flask"
+          - name: POSTGRES_HOST
+            value: "postgres"
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-password
+                key: POSTGRES_ROOT_PASSWORD
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-store
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "linode-block-storage-retain"
+      resources:
+        requests:
+          storage: 200Mi

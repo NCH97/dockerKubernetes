@@ -1,0 +1,26 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  labels:
+    app: flaskvue
+    tier: web
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      tier: web
+  template:
+    metadata:
+      name: server-pod
+      labels:
+        app: flaskvue
+        tier: web
+    spec:
+      containers:
+        - name: server-container
+          image: zozoh94/flask-vue-server:latest
+          ports:
+          - containerPort: 80
+          
